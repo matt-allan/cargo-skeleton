@@ -18,7 +18,7 @@ COPY --from=skeleton-builder /usr/src/cargo-skeleton/skeleton.tar /usr/src/cargo
 
 RUN tar xf skeleton.tar
 
-RUN cargo build --release --locked
+RUN <./DEPS xargs -I _ cargo build --release --locked -p _ 
 
 COPY . .
 

@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use cargo_skeleton::{build, BuildOptions, DEFAULT_OUT_PATH};
 use clap::{Arg, Command};
 use camino::Utf8PathBuf;
-//
+
 fn cli() -> Command {
     // For an explanation of the expected command structure, see:
     // https://doc.rust-lang.org/cargo/reference/external-tools.html#custom-subcommands

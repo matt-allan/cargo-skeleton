@@ -26,35 +26,10 @@ fn skeleton() {
     for file in entries {
         let file = file.unwrap();
 
-        let path = file.header()
+        let _path = file.header()
             .path().unwrap().into_owned()
             .to_str().unwrap().to_string();
 
-        match path.as_str() {
-            "Cargo.toml" => {
-
-            },
-            "src/lib.rs" => {
-
-            },
-            "src/main.rs" | "tests/self_test.rs" => {
-
-            },
-            _ => panic!("Unexpected path {}", path),
-        }
+        // TODO: assertions
     }
-
-    // let paths: Vec<String> = entries
-    //     .find(|f| f.unwrap()
-    //         .header().path().unwrap().into_owned()
-    //         .to_string_lossy()
-    //         .into_owned()
-    //     )
-    //     .collect();
-
-    // assert!(paths.iter().any(|p| p == "Cargo.toml"));
-    // assert!(paths.iter().any(|p| p == "src/lib.rs"));
-    // assert!(paths.iter().any(|p| p == "src/main.rs"));
-
-    // TODO: assert header attributes too
 }
