@@ -117,11 +117,7 @@ fn data_header(size: u64) -> tar::Header {
 }
 
 fn target_stub(target: &Target) -> &'static str {
-    if target.is_bin()
-        || target.is_bench()
-        || target.is_test()
-        || target.is_example()
-    {
+    if target.is_bin() || target.is_bench() || target.is_test() || target.is_example() {
         BIN_STUB
     } else {
         LIB_STUB

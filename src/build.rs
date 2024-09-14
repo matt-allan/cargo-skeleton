@@ -1,7 +1,7 @@
 use anyhow::{bail, Context, Result};
 use camino::Utf8PathBuf;
-use std::{collections::HashSet, env, process::Command};
 use log::*;
+use std::{collections::HashSet, env, process::Command};
 
 use crate::package::PackageId;
 use crate::workspace::Workspace;
@@ -48,14 +48,15 @@ pub fn build_skeleton_package(opts: BuildOptions) -> Result<()> {
     let build_ids: HashSet<&PackageId> = packages
         .into_iter()
         .filter(|id| !exclude.contains(id))
-        .flat_map(|id| workspace
-            .get_package(id)
-            .expect("present if ID was found")
-            .dependencies
-            .iter()
-            .filter(|dep| workspace.is_member(dep))
-            .chain(vec![id])
-        )
+        .flat_map(|id| {
+            workspace
+                .get_package(id)
+                .expect("present if ID was found")
+                .dependencies
+                .iter()
+                .filter(|dep| workspace.is_member(dep))
+                .chain(vec![id])
+        })
         .collect::<HashSet<&PackageId>>();
 
     if build_ids.is_empty() {
@@ -65,12 +66,15 @@ pub fn build_skeleton_package(opts: BuildOptions) -> Result<()> {
     let cargo = std::env::var("CARGO").unwrap_or("cargo".into());
 
     for pkg_id in build_ids.iter() {
-        let pkg = workspace.get_package(pkg_id).expect("present if ID was found");  
+        let pkg = workspace
+            .get_package(pkg_id)
+            .expect("present if ID was found");
 
         info!("Building package dependencies: {}", pkg.name);
 
         let pkg_args: Vec<&str> = pkg
-            .dependencies.iter()
+            .dependencies
+            .iter()
             .filter(|id| !workspace.is_member(id))
             .flat_map(|id| vec!["-p", id.as_str()])
             .collect();
@@ -84,8 +88,7 @@ pub fn build_skeleton_package(opts: BuildOptions) -> Result<()> {
             .spawn()
             .context("executing `cargo build` command")?;
 
-        let ecode = child.wait()
-            .context("waiting on cargo build process")?;
+        let ecode = child.wait().context("waiting on cargo build process")?;
 
         if !ecode.success() {
             bail!("Failed to execute cargo build")

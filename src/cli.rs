@@ -3,7 +3,11 @@ use camino::Utf8PathBuf;
 use clap::{Args, Parser};
 use clap_cargo::style::CLAP_STYLING;
 
-use crate::{build::{build_skeleton_package, BuildOptions}, create::create_skeleton, unpack::{unpack_skeleton_archive, UnpackOptions}};
+use crate::{
+    build::{build_skeleton_package, BuildOptions},
+    create::create_skeleton,
+    unpack::{unpack_skeleton_archive, UnpackOptions},
+};
 
 #[derive(Debug, Parser)]
 #[command(name = "cargo")]

@@ -27,8 +27,7 @@ pub fn unpack_skeleton_archive(opts: UnpackOptions) -> Result<()> {
 
     // TODO: check if there a Cargo.toml but not a Skeleton.lock, so we don't clobber a real project
 
-    ar.unpack(dest_path)
-        .context("unpacking archive")?;
+    ar.unpack(dest_path).context("unpacking archive")?;
 
     Ok(())
 }

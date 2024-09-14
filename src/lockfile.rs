@@ -78,18 +78,13 @@ mod tests {
                 Package {
                     name: "foo".into(),
                     id: "file:///foo".into(),
-                    dependencies: vec![
-                        "file:///bar".into(),
-                        "baz".into(),
-                    ],
+                    dependencies: vec!["file:///bar".into(), "baz".into()],
                 },
                 Package {
                     name: "bar".into(),
                     id: "file:///bar".into(),
-                    dependencies: vec![
-                        "baz".into(),
-                    ],
-                }
+                    dependencies: vec!["baz".into()],
+                },
             ],
         };
 

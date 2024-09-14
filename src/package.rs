@@ -1,8 +1,10 @@
 use std::fmt::{self, Display};
 
 use anyhow::{anyhow, Result};
+use cargo_metadata::{
+    DependencyKind, Metadata, Package as MetaPackage, PackageId as MetaPackageId,
+};
 use serde::{Deserialize, Serialize};
-use cargo_metadata::{DependencyKind, Metadata, Package as MetaPackage, PackageId as MetaPackageId};
 
 /// Meta information for a local package and it's dependencies.
 #[derive(Debug, PartialEq, PartialOrd, Eq, Ord, Serialize, Deserialize)]
@@ -18,16 +20,20 @@ pub struct Package {
 impl Package {
     pub fn load_metadata_dependencies(&mut self, metadata: &Metadata) -> Result<()> {
         let deps: Vec<PackageId> = metadata
-            .resolve.as_ref()
+            .resolve
+            .as_ref()
             .ok_or_else(|| anyhow!("Metadata missing deps"))?
-            .nodes.iter()
+            .nodes
+            .iter()
             .find(|node| &node.id.repr == self.id.as_str())
             .ok_or_else(|| anyhow!("Missing package resolution for {}", self.id))?
-            .deps.iter()
-            .filter(|dep| dep.dep_kinds
-                .iter()
-                .any(|kind| kind.kind == DependencyKind::Normal)
-            )
+            .deps
+            .iter()
+            .filter(|dep| {
+                dep.dep_kinds
+                    .iter()
+                    .any(|kind| kind.kind == DependencyKind::Normal)
+            })
             .map(|dep| dep.pkg.clone().into())
             .collect();
 
@@ -55,7 +61,7 @@ pub struct PackageId(String);
 
 impl PackageId {
     pub fn as_str(&self) -> &str {
-        &self.0 
+        &self.0
     }
 }
 
