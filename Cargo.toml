@@ -8,13 +8,13 @@ anyhow = "1.0.86"
 camino = "1.1.9"
 cargo_metadata = "0.18.1"
 clap = "4.5.17"
+clap-cargo = { version = "0.14.1", features = ["cargo_metadata"] }
 env_logger = "0.11.5"
 itertools = "0.13.0"
 log = "0.4.22"
 serde = { version = "1.0.210", features = ["derive"] }
 tar = "0.4.41"
 toml = "0.8.19"
-toml_edit = { version = "0.22.20", features = ["serde"] }
 
 [dev-dependencies]
 tempdir = "0.3.7"

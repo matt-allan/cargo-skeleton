@@ -10,20 +10,23 @@ COPY --from=cargo-skeleton:latest /cargo-skeleton /usr/local/cargo/bin/
 
 COPY . .
 
-RUN cargo skeleton
+ENV RUST_LOG=debug
+
+RUN cargo skeleton create
 
 FROM base AS builder
 
+COPY --from=cargo-skeleton:latest /cargo-skeleton /usr/local/cargo/bin/
 COPY --from=skeleton-builder /usr/src/cargo-skeleton/skeleton.tar /usr/src/cargo-skeleton/skeleton.tar
 
-RUN tar xf skeleton.tar
+RUN cargo skeleton unpack
 
-RUN <./DEPS xargs -I _ cargo build --release --locked -p _ 
+RUN cargo skeleton build
 
 COPY . .
 
 # ENV CARGO_LOG=cargo::core::compiler::fingerprint=trace
 
-RUN cargo install --locked --path .
+RUN cargo build --release --locked
 
-ENTRYPOINT ["cargo", "skeleton"]
+ENTRYPOINT ["cargo", "run" "--"]
