@@ -1,0 +1,119 @@
+use anyhow::{Context, Result};
+use camino::Utf8PathBuf;
+use clap::{Args, Parser};
+use clap_cargo::style::CLAP_STYLING;
+
+use crate::{build::{build_skeleton_package, BuildOptions}, create::{create_skeleton, CreateOptions}, unpack::{unpack_skeleton_archive, UnpackOptions}};
+
+#[derive(Debug, Parser)]
+#[command(name = "cargo")]
+#[command(bin_name = "cargo")]
+#[command(styles = CLAP_STYLING)]
+#[command(version, about, long_about = None)]
+pub enum Cli {
+    #[command(subcommand)]
+    Skeleton(SkeletonCommand),
+}
+
+#[derive(Debug, Parser)]
+pub enum SkeletonCommand {
+    Create(CreateArgs),
+    Unpack(UnpackArgs),
+    Build(BuildArgs),
+}
+
+#[derive(Debug, Args)]
+#[command(version, about, long_about = None)]
+pub struct CreateArgs {
+    #[clap(flatten)]
+    manifest: clap_cargo::Manifest,
+
+    #[clap(flatten)]
+    features: clap_cargo::Features,
+
+    /// Path to write the skeleton archive to
+    #[arg(long, default_value_t = Utf8PathBuf::from("skeleton.tar"))]
+    out_path: Utf8PathBuf,
+}
+
+#[derive(Debug, Args)]
+#[command(version, about, long_about = None)]
+pub struct UnpackArgs {
+    /// Path to the skeleton archive
+    #[arg(long, default_value_t = Utf8PathBuf::from("skeleton.tar"))]
+    archive_path: Utf8PathBuf,
+
+    /// Output path for the archive contents
+    #[arg(long, default_value_t = Utf8PathBuf::from("."))]
+    out_path: Utf8PathBuf,
+}
+
+#[derive(Debug, Args)]
+#[command(version, about, long_about = None)]
+pub struct BuildArgs {
+    #[clap(flatten)]
+    manifest: clap_cargo::Manifest,
+
+    #[clap(flatten)]
+    workspace: clap_cargo::Workspace,
+
+    /// Additional cargo build arguments
+    #[arg(last = true)]
+    args: Vec<String>,
+}
+
+pub fn run(args: Cli) -> Result<()> {
+    let cmd = match args {
+        Cli::Skeleton(cmd) => cmd,
+    };
+
+    match cmd {
+        SkeletonCommand::Create(args) => {
+            let opts = CreateOptions {
+                manifest_path: args
+                    .manifest
+                    .manifest_path
+                    .map(|p| p.to_owned().try_into().unwrap()),
+                out_path: Some(args.out_path),
+            };
+
+            // TODO: use features
+
+            create_skeleton(opts).context("building skeleton")?;
+        }
+        SkeletonCommand::Unpack(args) => {
+            let opts = UnpackOptions {
+                archive_path: Some(args.archive_path),
+                dest_path: Some(args.out_path),
+            };
+
+            unpack_skeleton_archive(opts).context("unpacking skeleton archive")?;
+        }
+        SkeletonCommand::Build(args) => {
+            let opts = BuildOptions {
+                manifest_path: args
+                    .manifest
+                    .manifest_path
+                    .map(|p| p.to_owned().try_into().unwrap()),
+                // TODO: get from opts / metadata
+                packages: vec!["cargo-skeleton".into()],
+            };
+
+            build_skeleton_package(opts).context("building skeleton packages")?;
+        }
+    }
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn verify_cli() {
+        use clap::CommandFactory;
+
+        Cli::command().debug_assert();
+    }
+}

@@ -4,7 +4,7 @@ use anyhow::{Context, Result};
 use camino::Utf8PathBuf;
 use tar::Archive;
 
-use crate::DEFAULT_OUT_PATH;
+use crate::create::DEFAULT_OUT_PATH;
 
 #[derive(Debug, Default)]
 pub struct UnpackOptions {
