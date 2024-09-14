@@ -10,7 +10,17 @@ use crate::workspace::Workspace;
 pub struct BuildOptions {
     pub manifest_path: Option<Utf8PathBuf>,
 
+    /// Packages to build
     pub packages: Vec<String>,
+
+    /// Packages to exclude from the build
+    pub exclude: Vec<String>,
+
+    /// Build all packages in the workspace
+    pub all: bool,
+
+    /// Additional cargo build args
+    pub args: Vec<String>,
 }
 
 pub fn build_skeleton_package(opts: BuildOptions) -> Result<()> {
@@ -27,6 +37,8 @@ pub fn build_skeleton_package(opts: BuildOptions) -> Result<()> {
     let mut workspace = Workspace::new(workspace_root);
 
     workspace.load_lockfile()?;
+
+    // TODO: use packages, exclude, and all to resolve build packages
 
     let build_ids: HashSet<&PackageId> = opts.packages
         .iter()
@@ -68,15 +80,16 @@ pub fn build_skeleton_package(opts: BuildOptions) -> Result<()> {
         let mut child = Command::new(&cargo)
             .arg("build")
             .args(pkg_args)
-            // TODO: cusom build args
-            .arg("--release")
-            .arg("--locked")
+            .args(&opts.args)
             .spawn()
             .context("executing `cargo build` command")?;
 
-        let ecode = child.wait().expect("failed to wait on child");
+        let ecode = child.wait()
+            .context("waiting on cargo build process")?;
 
-        assert!(ecode.success());
+        if !ecode.success() {
+            bail!("Failed to execute cargo build")
+        }
     }
 
     Ok(())

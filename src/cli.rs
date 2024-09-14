@@ -3,7 +3,7 @@ use camino::Utf8PathBuf;
 use clap::{Args, Parser};
 use clap_cargo::style::CLAP_STYLING;
 
-use crate::{build::{build_skeleton_package, BuildOptions}, create::{create_skeleton, CreateOptions}, unpack::{unpack_skeleton_archive, UnpackOptions}};
+use crate::{build::{build_skeleton_package, BuildOptions}, create::create_skeleton, unpack::{unpack_skeleton_archive, UnpackOptions}};
 
 #[derive(Debug, Parser)]
 #[command(name = "cargo")]
@@ -69,17 +69,15 @@ pub fn run(args: Cli) -> Result<()> {
 
     match cmd {
         SkeletonCommand::Create(args) => {
-            let opts = CreateOptions {
-                manifest_path: args
-                    .manifest
-                    .manifest_path
-                    .map(|p| p.to_owned().try_into().unwrap()),
-                out_path: Some(args.out_path),
+            let metadata = {
+                let mut metadata = args.manifest.metadata();
+
+                args.features.forward_metadata(&mut metadata);
+
+                metadata.exec().context("executing cargo metadata")?
             };
 
-            // TODO: use features
-
-            create_skeleton(opts).context("building skeleton")?;
+            create_skeleton(metadata, args.out_path).context("building skeleton")?;
         }
         SkeletonCommand::Unpack(args) => {
             let opts = UnpackOptions {
@@ -95,8 +93,10 @@ pub fn run(args: Cli) -> Result<()> {
                     .manifest
                     .manifest_path
                     .map(|p| p.to_owned().try_into().unwrap()),
-                // TODO: get from opts / metadata
-                packages: vec!["cargo-skeleton".into()],
+                packages: args.workspace.package,
+                exclude: args.workspace.exclude,
+                all: args.workspace.all,
+                args: args.args,
             };
 
             build_skeleton_package(opts).context("building skeleton packages")?;

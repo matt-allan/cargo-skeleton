@@ -1,6 +1,6 @@
 use std::{collections::HashMap, ops::Index};
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{bail, Result};
 use camino::{Utf8Path, Utf8PathBuf};
 use cargo_metadata::Metadata;
 use itertools::Itertools;

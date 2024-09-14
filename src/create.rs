@@ -1,7 +1,7 @@
 use crate::{lockfile::LOCKFILE_NAME, workspace::Workspace};
 use anyhow::{Context, Result};
 use camino::Utf8PathBuf;
-use cargo_metadata::{CargoOpt, MetadataCommand, Target};
+use cargo_metadata::{Metadata, Target};
 use itertools::Itertools;
 use log::*;
 use std::{env, fs::File};
@@ -32,30 +32,8 @@ const CONFIG_PATHS: &[&str] = &[
     "rust-toolchain.toml",
 ];
 
-#[derive(Debug, Default)]
-pub struct CreateOptions {
-    pub manifest_path: Option<Utf8PathBuf>,
-    pub out_path: Option<Utf8PathBuf>,
-}
-
-pub fn create_skeleton(opts: CreateOptions) -> Result<()> {
-    let mut cmd = MetadataCommand::new();
-
-    if let Some(manifest_path) = opts.manifest_path {
-        cmd.manifest_path(manifest_path);
-    }
-
-    let metadata = cmd
-        // TODO: we need better customization here.
-        .features(CargoOpt::AllFeatures)
-        .exec()
-        .context("running cargo metadata")?;
-
+pub fn create_skeleton(metadata: Metadata, out_path: Utf8PathBuf) -> Result<()> {
     info!("Using workspace root: {}", metadata.workspace_root);
-
-    let out_path = opts
-        .out_path
-        .unwrap_or_else(|| DEFAULT_OUT_PATH.try_into().expect("valid path"));
 
     info!("Writing to {}", out_path);
 
