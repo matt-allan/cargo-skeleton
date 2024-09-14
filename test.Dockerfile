@@ -21,7 +21,7 @@ COPY --from=skeleton-builder /usr/src/cargo-skeleton/skeleton.tar /usr/src/cargo
 
 RUN cargo skeleton unpack
 
-RUN cargo skeleton build
+RUN cargo skeleton build -- --release --locked
 
 COPY . .
 

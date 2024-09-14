@@ -1,4 +1,4 @@
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{bail, Context, Result};
 use camino::Utf8PathBuf;
 use std::{collections::HashSet, env, process::Command};
 use log::*;
@@ -39,7 +39,7 @@ pub fn build_skeleton_package(opts: BuildOptions) -> Result<()> {
     workspace.load_lockfile()?;
 
     let exclude = workspace.get_package_ids(&opts.exclude[..])?;
-    let packages = if opts.all {
+    let packages = if opts.all || opts.packages.is_empty() {
         workspace.packages().map(|pkg| &pkg.id).collect()
     } else {
         workspace.get_package_ids(&opts.packages[..])?

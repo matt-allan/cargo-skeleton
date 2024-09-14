@@ -45,7 +45,7 @@ impl Workspace {
         Ok(())
     }
 
-    // Load packages from workspace metadata.
+    /// Load packages from workspace metadata.
     pub fn load_metadata(&mut self, metadata: &Metadata) -> Result<()> {
         let packages: Result<Vec<Package>> = metadata
             .packages
@@ -94,11 +94,12 @@ impl Workspace {
         self.packages.contains_key(id)
     }
 
-    // Get a package by ID.
+    /// Get a package by ID.
     pub fn get_package(&self, id: &PackageId) -> Option<&Package> {
         self.packages.get(id)
     }
 
+    /// Find package ids for a slice of specs.
     pub fn get_package_ids(&self, specs: &[impl AsRef<str>]) -> Result<Vec<&PackageId>> {
         specs
             .iter()
@@ -113,7 +114,7 @@ impl Workspace {
             .collect::<Result<Vec<&PackageId>>>()
     }
 
-    // Find the id of the package with the given spec.
+    /// Find the id of the package with the given spec.
     pub fn package_id(&self, spec: impl AsRef<str>) -> Option<&PackageId> {
         self.packages
             .values()
@@ -121,6 +122,7 @@ impl Workspace {
             .map(|pkg| &pkg.id)
     }
 
+    /// Create a lockfile from the workspace.
     pub fn into_lockfile(self) -> Lockfile {
         Lockfile {
             packages: self.packages.into_values().collect(),

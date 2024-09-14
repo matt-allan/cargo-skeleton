@@ -1,10 +1,10 @@
-use std::{fs::File, io::{Read, Write}};
+use std::{fs::File, io::Read};
 
 use anyhow::{bail, Context, Result};
-use camino::{Utf8Path, Utf8PathBuf};
+use camino::Utf8Path;
 use serde::{Deserialize, Serialize};
 
-use crate::{package::Package, workspace::Workspace};
+use crate::package::Package;
 
 /// The standard file name used for the lockfile on disk.
 pub const LOCKFILE_NAME: &str = "Skeleton.lock";
@@ -65,19 +65,6 @@ pub fn load_lockfile(workspace_root: &Utf8Path) -> Result<Lockfile> {
     let lockfile: Lockfile = toml::from_str(&buf).context("parsing lockfile")?;
 
     Ok(lockfile)
-}
-
-/// Write the lockfile to disk.
-pub fn write_lockfile(workspace_root: Utf8PathBuf, lockfile: &mut Lockfile) -> Result<()> {
-    let path = workspace_root.join(LOCKFILE_NAME);
-
-    let mut file = File::create(path).context("opening lockfile")?;
-
-    let data = lockfile.to_string();
-
-    file.write_all(data.as_bytes()).context("writing lockfile")?;
-
-    Ok(())
 }
 
 #[cfg(test)]
