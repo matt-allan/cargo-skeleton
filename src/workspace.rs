@@ -1,12 +1,15 @@
 use std::{collections::HashMap, ops::Index};
 
-use anyhow::{bail, Result};
+use anyhow::{anyhow, Result};
 use camino::{Utf8Path, Utf8PathBuf};
 use cargo_metadata::Metadata;
 use itertools::Itertools;
 use log::*;
 
-use crate::{lockfile::{load_lockfile, Lockfile}, package::{Package, PackageId}};
+use crate::{
+    lockfile::{load_lockfile, Lockfile},
+    package::{Package, PackageId},
+};
 
 /// A workspace of crates.
 #[derive(Debug)]
@@ -15,7 +18,7 @@ pub struct Workspace {
     workspace_root: Utf8PathBuf,
 
     /// Packages found within the workspace
-    packages: HashMap<PackageId,Package>,
+    packages: HashMap<PackageId, Package>,
 }
 
 impl Workspace {
@@ -29,23 +32,6 @@ impl Workspace {
     /// Returns the root path of the workspace.
     pub fn root(&self) -> &Utf8Path {
         &self.workspace_root
-    }
-
-    /// Returns the path to the root Cargo.toml.
-    pub fn root_manifest(&self) -> Utf8PathBuf {
-        self.workspace_root.join("Cargo.toml")
-    }
-
-    /// Strip the workspace root from the given path.
-    pub fn strip_workspace_root<'a>(&self, path: &'a Utf8Path) -> Result<&'a Utf8Path> {
-        if !path.starts_with(&self.root()) {
-            bail!("Path outside of workspace root")
-        }
-
-        Ok(path
-            .strip_prefix(&self.root())
-            .expect("path inside workspace")
-        )
     }
 
     /// Load the workspace packages from a lockfile.
@@ -68,12 +54,12 @@ impl Workspace {
             .filter(|pkg| {
                 if !pkg.manifest_path.starts_with(self.root()) {
                     info!("Ignoring local package {} outside of root", pkg.name);
-                    return false
+                    return false;
                 }
                 true
             })
             .sorted_by(|a, b| Ord::cmp(&a.id, &b.id))
-            .map(|package| -> Result<Package> { 
+            .map(|package| -> Result<Package> {
                 let mut package = Package::from(package);
 
                 package.load_metadata_dependencies(metadata)?;
@@ -92,7 +78,7 @@ impl Workspace {
     /// Add a package to the workspace.
     pub fn add_package(&mut self, package: Package) {
         if self.packages.contains_key(&package.id) {
-            return
+            return;
         }
 
         self.packages.insert(package.id.clone(), package);
@@ -113,18 +99,31 @@ impl Workspace {
         self.packages.get(id)
     }
 
+    pub fn get_package_ids(&self, specs: &[impl AsRef<str>]) -> Result<Vec<&PackageId>> {
+        specs
+            .iter()
+            .map(|spec| -> Result<&PackageId> {
+                self.package_id(spec).ok_or_else(|| {
+                    anyhow!(
+                        "package ID specification `{}` did not match any packages",
+                        spec.as_ref()
+                    )
+                })
+            })
+            .collect::<Result<Vec<&PackageId>>>()
+    }
+
     // Find the id of the package with the given spec.
     pub fn package_id(&self, spec: impl AsRef<str>) -> Option<&PackageId> {
         self.packages
             .values()
-            .find(|pkg| pkg.name == spec.as_ref() ||
-                pkg.id.as_str() == spec.as_ref())
+            .find(|pkg| pkg.name == spec.as_ref() || pkg.id.as_str() == spec.as_ref())
             .map(|pkg| &pkg.id)
     }
 
     pub fn into_lockfile(self) -> Lockfile {
         Lockfile {
-            packages: self.packages.into_values().collect()
+            packages: self.packages.into_values().collect(),
         }
     }
 }
@@ -133,7 +132,8 @@ impl<'a> Index<&'a PackageId> for Workspace {
     type Output = Package;
 
     fn index(&self, idx: &'a PackageId) -> &Package {
-        self.packages.get(idx)
+        self.packages
+            .get(idx)
             .unwrap_or_else(|| panic!("No package with id {:?}", idx))
     }
-}   
+}

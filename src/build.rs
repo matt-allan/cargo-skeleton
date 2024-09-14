@@ -38,16 +38,16 @@ pub fn build_skeleton_package(opts: BuildOptions) -> Result<()> {
 
     workspace.load_lockfile()?;
 
-    // TODO: use packages, exclude, and all to resolve build packages
+    let exclude = workspace.get_package_ids(&opts.exclude[..])?;
+    let packages = if opts.all {
+        workspace.packages().map(|pkg| &pkg.id).collect()
+    } else {
+        workspace.get_package_ids(&opts.packages[..])?
+    };
 
-    let build_ids: HashSet<&PackageId> = opts.packages
-        .iter()
-        .map(|spec| -> Result<&PackageId> {
-            workspace.package_id(spec)
-                .ok_or_else(|| anyhow!("package ID specification `{}` did not match any packages", &spec))
-        })
-        .collect::<Result<Vec<&PackageId>>>()?
+    let build_ids: HashSet<&PackageId> = packages
         .into_iter()
+        .filter(|id| !exclude.contains(id))
         .flat_map(|id| workspace
             .get_package(id)
             .expect("present if ID was found")
