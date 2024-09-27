@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use camino::Utf8PathBuf;
 use clap::{Args, Parser};
-use clap_cargo::style::CLAP_STYLING;
+use clap_cargo::style::{GOOD, CLAP_STYLING};
 
 use crate::{
     build::{build_skeleton_package, BuildOptions},
@@ -81,15 +81,19 @@ pub fn run(args: Cli) -> Result<()> {
                 metadata.exec().context("executing cargo metadata")?
             };
 
+            println!("{GOOD}Creating{GOOD:#} {}", args.out_path);
             create_skeleton(metadata, args.out_path).context("building skeleton")?;
+            println!("{GOOD}Finished{GOOD:#}");
         }
         SkeletonCommand::Unpack(args) => {
             let opts = UnpackOptions {
-                archive_path: Some(args.archive_path),
+                archive_path: Some(args.archive_path.clone()),
                 dest_path: Some(args.out_path),
             };
 
+            println!("{GOOD}Unpacking{GOOD:#} {}", args.archive_path);
             unpack_skeleton_archive(opts).context("unpacking skeleton archive")?;
+            println!("{GOOD}Finished{GOOD:#}");
         }
         SkeletonCommand::Build(args) => {
             let opts = BuildOptions {
