@@ -1,4 +1,5 @@
-# TODO: we can add support for musl images with a "LIBC" ARG
+# This Dockerfile builds the distribution image for cargo-skeleton.
+# It is not an example of how to use cargo-skeleton.
 FROM --platform=$BUILDPLATFORM docker.io/rust:1.80.1-slim-bookworm AS build
 
 RUN apt-get update && apt-get install -y \

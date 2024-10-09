@@ -1,6 +1,6 @@
 use std::{env, fs::File};
 
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use camino::Utf8PathBuf;
 use tar::Archive;
 
@@ -25,7 +25,10 @@ pub fn unpack_skeleton_archive(opts: UnpackOptions) -> Result<()> {
 
     let mut ar = Archive::new(file);
 
-    // TODO: check if there a Cargo.toml but not a Skeleton.lock, so we don't clobber a real project
+    if dest_path.join("Cargo.toml").exists() &&
+        !dest_path.join("Skeleton.lock").exists() {
+            bail!("Attempted to unpack a skeleton archive into an existing workspace");
+    }
 
     ar.unpack(dest_path).context("unpacking archive")?;
 

@@ -1,0 +1,23 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH cargo-skeleton 1  "skeleton " 
+.SH NAME
+cargo\-skeleton \- Create and build skeleton packages
+.SH SYNOPSIS
+\fBcargo skeleton\fR [\fB\-h\fR|\fB\-\-help\fR] <\fIsubcommands\fR>
+.SH DESCRIPTION
+Create and build skeleton packages
+.SH OPTIONS
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help
+.SH SUBCOMMANDS
+.TP
+cargo\-skeleton\-create(1)
+Create a skeleton archive from a Cargo workspace
+.TP
+cargo\-skeleton\-unpack(1)
+Unpack a skeleton archive
+.TP
+cargo\-skeleton\-build(1)
+Compile a skeleton package\*(Aqs dependencies

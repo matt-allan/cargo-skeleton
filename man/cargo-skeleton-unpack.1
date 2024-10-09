@@ -1,0 +1,32 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH cargo-skeleton-unpack 1  "unpack 0.1.0" 
+.SH NAME
+cargo\-skeleton\-unpack \- Unpack a skeleton archive
+.SH SYNOPSIS
+\fBcargo skeleton unpack\fR [\fB\-\-archive\-path\fR] [\fB\-\-out\-path\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] 
+.SH DESCRIPTION
+Unpack a skeleton archive
+.PP
+Unpacks the skeleton archive in the the given destination path.
+.PP
+If `\-\-archive\-path` is not specified, the command will look for a `skeleton.tar` in the current directory.
+.PP
+The archive is unpacked in the current directory unless `\-\-dest\-path` is specified. The archive is not deleted.
+.PP
+If the destination path contains a `Cargo.toml` and does not contain a `Skeleton.lock`, it is assumed to be an existing Cargo project. To prevent overwriting existing files, unpacking will fail.
+.SH OPTIONS
+.TP
+\fB\-\-archive\-path\fR=\fIARCHIVE_PATH\fR [default: skeleton.tar]
+Path to the skeleton archive
+.TP
+\fB\-\-out\-path\fR=\fIOUT_PATH\fR [default: .]
+Output path for the archive contents
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help (see a summary with \*(Aq\-h\*(Aq)
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Print version
+.SH VERSION
+v0.1.0

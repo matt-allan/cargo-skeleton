@@ -75,7 +75,13 @@ RUN cargo build --release --locked
 
 If you are using this with buildx caching, make sure to pass [`mode=max`](https://docs.docker.com/build/cache/backends/#cache-mode).
 
-### How it works
+## Command Reference
+
+- [`cargo skeleton create`](./man/cargo-skeleton-create.1)
+- [`cargo skeleton unpack`](./man/cargo-skeleton-unpack.1)
+- [`cargo skeleton build`](./man/cargo-skeleton-build.1)
+
+## How it works
 
 The skeleton is just a tar archive. Every file that affects compilation is added as-is. Every target (`src/lib.rs`, `src/main.rs`, etc.) is replaced with a "stub" file. The stub will cause a compilation error if it's actually compiled; it only exists to make Cargo happy. The archive will have the same checksum unless one of the files changes.
 
@@ -83,19 +89,21 @@ The skeleton archive is built in a Docker stage, then copied to the next stage w
 
 After unpacking the archive the dependencies for a given package are built. This uses a custom command because Cargo does not have a flag to only build dependencies. All the command does is pass a bunch of `--package` flags to `cargo build`. The list of dependencies is saved to a `Skeleton.lock` file when the archive is first built and read by the build command.
 
-### Alternatives
+The dependencies are built without ever compiling the package itself to avoid problems with Cargo's build cache. If you compile with the stub file it seems to work, until one day you happen to merge a commit that's older than the layer cache. When that happens Cargo decides it does not need to recompile the package. If you don't have a smoke test for the final image an empty binary gets shipped to production. This tool prevents that issue by failing the build if a stub is ever compiled.
 
-#### Manual stubs
+## Alternatives
 
-Like [this](https://stackoverflow.com/questions/58473606/cache-rust-dependencies-with-docker-build). It sort of works, but it's very hard to maintain in a workspace with multiple packages. The dummy files can confuse the Cargo cache mtime detection, resulting in a successful build of an empty binary.
+### Manual stubs
 
-#### Docker cache mounts
+A common workaround is to [manually copy Cargo files and rewrite targets](https://stackoverflow.com/questions/58473606/cache-rust-dependencies-with-docker-build). It sort of works, but it's very hard to maintain in a workspace with multiple packages. The dummy files can confuse the Cargo cache mtime detection, resulting in a successful build of an empty binary.
+
+### Docker cache mounts
 
 If you are always building on the same machine, you can use cache mounts instead. Using cache mounts lets you use Cargo like you normally would, and you don't need to do any of this.
 
 The big downside of cache mounts is they don't work with the [buildx cache](https://docs.docker.com/build/cache/backends/). In a CI environment you don't typically get to use the same machine twice, and you need to use a remote cache for fast builds.
 
-#### Cargo Chef
+### Cargo Chef
 
 [Cargo Chef](https://github.com/LukeMathWalker/cargo-chef) inspired the design of Cargo Skeleton, so the approaches are very similar. This project was created to try a more "hands off" approach, letting Cargo do more of the work, in hopes that doing so would avoid edge cases that break compilation. For example:
 

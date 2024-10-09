@@ -1,0 +1,41 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH cargo-skeleton-create 1  "create 0.1.0" 
+.SH NAME
+cargo\-skeleton\-create \- Create a skeleton archive from a Cargo workspace
+.SH SYNOPSIS
+\fBcargo skeleton create\fR [\fB\-\-manifest\-path\fR] [\fB\-\-all\-features\fR] [\fB\-\-no\-default\-features\fR] [\fB\-F\fR|\fB\-\-features\fR] [\fB\-\-out\-path\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] 
+.SH DESCRIPTION
+Create a skeleton archive from a Cargo workspace
+.PP
+A skeleton is a tar archive of a workspace, containing all files necessary to compile the workspace dependencies. Files that affect compilation are copied as\-is, while targets are replaced with empty stub files.
+.PP
+The skeleton archive is written to `skeleton.tar` in the current directory by default. To change the path, use the `\-\-out\-path` option.
+.PP
+The workspace packages, dependencies, and targets are discovered using Cargo metadata. By default Cargo searches for the `Cargo.toml` file in the current directory and any parent directories. To specify a different path, use the `\-\-manifest\-path` option.
+.PP
+Package dependencies are resolved when the archive is created. The feature selection flags may be used to control which features are enabled when Cargo resolves the workspace dependencies. All of the flags used by Cargo are supported: `\-\-features`, `\-\-all\-features`, and `\-\-no\-default\-features`.
+.SH OPTIONS
+.TP
+\fB\-\-manifest\-path\fR=\fIPATH\fR
+Path to Cargo.toml
+.TP
+\fB\-\-all\-features\fR
+Activate all available features
+.TP
+\fB\-\-no\-default\-features\fR
+Do not activate the `default` feature
+.TP
+\fB\-F\fR, \fB\-\-features\fR=\fIFEATURES\fR
+Space\-separated list of features to activate
+.TP
+\fB\-\-out\-path\fR=\fIOUT_PATH\fR [default: skeleton.tar]
+Path to write the skeleton archive to
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help (see a summary with \*(Aq\-h\*(Aq)
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Print version
+.SH VERSION
+v0.1.0

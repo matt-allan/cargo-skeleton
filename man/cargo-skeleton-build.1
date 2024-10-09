@@ -1,0 +1,36 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH cargo-skeleton-build 1  "build 0.1.0" 
+.SH NAME
+cargo\-skeleton\-build \- Compile a skeleton package\*(Aqs dependencies
+.SH SYNOPSIS
+\fBcargo skeleton build\fR [\fB\-\-manifest\-path\fR] [\fB\-p\fR|\fB\-\-package\fR] [\fB\-\-workspace\fR] [\fB\-\-all\fR] [\fB\-\-exclude\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] [\fIARGS\fR] 
+.SH DESCRIPTION
+Compile a skeleton package\*(Aqs dependencies
+.SH OPTIONS
+.TP
+\fB\-\-manifest\-path\fR=\fIPATH\fR
+Path to Cargo.toml
+.TP
+\fB\-p\fR, \fB\-\-package\fR=\fISPEC\fR
+Package to process (see `cargo help pkgid`)
+.TP
+\fB\-\-workspace\fR
+Process all packages in the workspace
+.TP
+\fB\-\-all\fR
+
+.TP
+\fB\-\-exclude\fR=\fISPEC\fR
+Exclude packages from being processed
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help (see a summary with \*(Aq\-h\*(Aq)
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Print version
+.TP
+[\fIARGS\fR]
+Additional cargo build arguments
+.SH VERSION
+v0.1.0

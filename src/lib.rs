@@ -1,8 +1,11 @@
-mod build;
-mod create;
+#[doc(hidden)]
+pub mod build;
+#[doc(hidden)]
+pub mod create;
+#[doc(hidden)]
+mod unpack;
 mod lockfile;
 mod package;
-mod unpack;
 mod workspace;
 
 #[doc(hidden)]

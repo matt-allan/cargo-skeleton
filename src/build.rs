@@ -8,6 +8,7 @@ use crate::workspace::Workspace;
 
 #[derive(Debug, Default)]
 pub struct BuildOptions {
+    /// Path to the root manifest of the workspace
     pub manifest_path: Option<Utf8PathBuf>,
 
     /// Packages to build
@@ -23,6 +24,7 @@ pub struct BuildOptions {
     pub args: Vec<String>,
 }
 
+/// Build a skeleton package by compiling all of it's dependencies.
 pub fn build_skeleton_package(opts: BuildOptions) -> Result<()> {
     let workspace_root: Utf8PathBuf = opts
         .manifest_path
@@ -79,7 +81,7 @@ pub fn build_skeleton_package(opts: BuildOptions) -> Result<()> {
             .flat_map(|id| vec!["-p", id.as_str()])
             .collect();
 
-        debug!("Running `cargo build {}`", pkg_args.join(" "));
+        debug!("Running `cargo build {} {}`", pkg_args.join(" "), &opts.args.join(" "));
 
         let mut child = Command::new(&cargo)
             .arg("build")
